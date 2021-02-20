@@ -30,8 +30,6 @@ namespace HandBrakeWPF
     using HandBrakeWPF.ViewModels;
     using HandBrakeWPF.ViewModels.Interfaces;
 
-    using Microsoft.Win32;
-
     using GeneralApplicationException = Exceptions.GeneralApplicationException;
 
     /// <summary>
@@ -71,6 +69,13 @@ namespace HandBrakeWPF
             if (!Environment.Is64BitOperatingSystem)
             {
                 MessageBox.Show(HandBrakeWPF.Properties.Resources.OsBitnessWarning, HandBrakeWPF.Properties.Resources.Warning, MessageBoxButton.OK, MessageBoxImage.Warning);
+                Application.Current.Shutdown();
+                return;
+            }
+
+            if (!File.Exists("hb.dll"))
+            {
+                MessageBox.Show(HandBrakeWPF.Properties.Resources.Startup_HbDllMissing, HandBrakeWPF.Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
                 return;
             }
@@ -167,14 +172,14 @@ namespace HandBrakeWPF
             {
                 HandBrakeInstanceManager.Init(noHardware);
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 if (!noHardware)
                 {
                     MessageBox.Show(HandBrakeWPF.Properties.Resources.Startup_InitFailed, HandBrakeWPF.Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
-                throw exception;
+                throw;
             }
 
             // Initialise the GUI
