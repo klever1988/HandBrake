@@ -294,7 +294,7 @@ static int hb_video_encoder_is_enabled(int encoder, int disable_hardware)
 #if HB_PROJECT_FEATURE_QSV
         if (encoder & HB_VCODEC_QSV_MASK)
         {
-            return hb_qsv_video_encoder_is_enabled(encoder);
+            return hb_qsv_video_encoder_is_enabled(hb_qsv_get_adapter_index(), encoder);
         }
 #endif
 
@@ -1520,6 +1520,9 @@ int hb_video_encoder_get_depth(int encoder)
     {
 #if HB_PROJECT_FEATURE_QSV
         case HB_VCODEC_QSV_H265_10BIT:
+#endif
+#ifdef __APPLE__
+        case HB_VCODEC_FFMPEG_VT_H265_10BIT:
 #endif
         case HB_VCODEC_X264_10BIT:
         case HB_VCODEC_X265_10BIT:
@@ -3894,8 +3897,8 @@ static void job_setup(hb_job_t * job, hb_title_t * title)
     job->metadata = hb_metadata_copy( title->metadata );
 
 #if HB_PROJECT_FEATURE_QSV
+    job->qsv.ctx                   = hb_qsv_context_init();
     job->qsv.enc_info.is_init_done = 0;
-    job->qsv.async_depth           = hb_qsv_param_default_async_depth();
     job->qsv.decode                = !!(title->video_decode_support &
                                         HB_DECODE_SUPPORT_QSV);
 #endif
